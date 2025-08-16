@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Chrome Extension Popup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="popup-container">
+        <h1>Welcome to My Chrome Extension</h1>
+        <p>This is a simple popup for the extension.</p>
+        <div id="privacy-notice" style="font-size:0.9em; color:#666; margin:16px 0 8px 0;">
+            <strong>Transparencia:</strong> Esta extensión analiza las URLs visitadas usando Google Gemini para proteger a menores. No recolecta información personal ni comparte datos con otros terceros. <a href="../PRIVACY_POLICY.md" target="_blank" style="color:#4f46e5; text-decoration:underline;">Política de privacidad</a>.
+        </div>
+        <button id="action-button">Click Me!</button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
