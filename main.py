@@ -5,9 +5,9 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 # --- Configuración de la base de datos MongoDB ---
-MONGO_URI = "mongodb://localhost:27017/"  # Reemplaza con tu URI de conexión si usas Atlas
-DB_NAME = "hack_puebla_db"
-COLLECTION_NAME = "incidentes"
+MONGO_URI = "mongodb+srv://isacaguilar222:1Y3nMiJUvATt7nIG@database.ezqrcly.mongodb.net/?retryWrites=true&w=majority&appName=dataBaseisacaaguilar222"
+DB_NAME = "main_dataBase"
+COLLECTION_NAME = "data"
 
 def get_mongo_collection():
     """Establece la conexión a MongoDB y retorna la colección."""
