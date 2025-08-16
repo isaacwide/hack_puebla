@@ -4,8 +4,15 @@
   "version": "1.0",
   "description": "A simple Chrome extension example.",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "identity"
   ],
+  "oauth2": {
+    "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+  },
   "background": {
     "service_worker": "src/background.js"
   },
