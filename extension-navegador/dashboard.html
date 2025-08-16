@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; width: 400px; padding: 10px; }
+        h4 { margin: 0; }
+        #api-config { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        input { width: 100%; padding: 5px; box-sizing: border-box; }
+        button { margin-top: 10px; width: 100%; padding: 8px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        #status-message { font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div id="api-config">
+        <h4>Clave de API de Gemini</h4>
+        <p>Ingresa tu clave de API para activar el monitoreo.</p>
+        <input type="text" id="api-key-input" placeholder="Ingresa tu clave de API aquí">
+        <button id="save-btn">Guardar Clave</button>
+        <p id="status-message"></p>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>

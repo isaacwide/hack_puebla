@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Control Parental</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .incidente { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .incidente-texto { font-style: italic; color: #555; }
+        .incidente-url { font-size: 0.9em; }
+        .badge { font-weight: bold; padding: 2px 5px; border-radius: 3px; color: white; }
+        .riesgo_medio { background-color: orange; }
+        .riesgo_alto { background-color: red; }
+        .riesgo_grave { background-color: darkred; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard de Control Parental</h1>
+    <p>Revisa los incidentes de riesgo detectados por la extensión de navegador.</p>
+
+    <div id="incidents-list">
+        {% if incidentes %}
+            {% for incidente in incidentes %}
+                <div class="incidente">
+                    <span class="badge {{ incidente.categoria }}">{{ incidente.categoria.replace('_', ' ').upper() }}</span>
+                    <p><strong>Motivo:</strong> {{ incidente.motivo }}</p>
+                    <p class="incidente-texto"><strong>Texto:</strong> "{{ incidente.texto }}"</p>
+                    <p class="incidente-url"><strong>URL:</strong> <a href="{{ incidente.url }}" target="_blank">{{ incidente.url }}</a></p>
+                    <p class="incidente-url"><strong>Fecha:</strong> {{ incidente.fecha }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No se han registrado incidentes de riesgo.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
