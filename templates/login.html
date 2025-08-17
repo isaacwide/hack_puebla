@@ -2,26 +2,394 @@
 <html>
 <head>
     <title>Inicio de Sesión</title>
+    <style>
+        :root {
+            --background-color: #0d1117;
+            --card-color: #161b22;
+            --text-color: #ecf0f1;
+            --accent-color: #00ff84; /* Verde neón */
+            --glow-color: #00ff84;
+            --secondary-text-color: #8b949e;
+            --border-glow: rgba(0, 255, 132, 0.4);
+        }
+
+        body {
+            font-family: 'Consolas', 'Menlo', monospace;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- Estilos del sistema de carga --- */
+        #loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 4px solid var(--card-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite, glow 1.5s infinite alternate;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px var(--glow-color); }
+            100% { box-shadow: 0 0 20px var(--glow-color); }
+        }
+        
+        /* Contenido de la página (inicialmente invisible) */
+        .content {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* --- Animación de cubos en 3D (ajustada para el login) --- */
+        .cube-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            perspective: 800px;
+            overflow: hidden;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .cube-background::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 500%;
+            height: 500%;
+            background-image: radial-gradient(var(--accent-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: cube-grid 30s linear infinite;
+        }
+
+        @keyframes cube-grid {
+            from {
+                transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg) scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg) scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        /* --- El resto de tus estilos --- */
+        .container { /* Puede envolver el card si quieres más elementos alrededor */
+            max-width: 1100px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        .background-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at 10% 20%, #0d1117, transparent 20%),
+                        radial-gradient(circle at 90% 80%, #161b22, transparent 25%);
+            animation: pulse-glow 15s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--border-glow), 0 0 5px var(--accent-color);
+            padding: 50px 70px;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 20;
+            /* Estilos específicos para el formulario dentro de la tarjeta */
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espacio entre los elementos del formulario */
+            align-items: center; /* Centrar elementos del formulario horizontalmente */
+            width: fit-content; /* Ajustar el ancho de la tarjeta al contenido */
+            max-width: 90%; /* Máximo ancho para responsividad */
+            box-sizing: border-box; /* Incluir padding y border en el width */
+        }
+        
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px var(--border-glow), 0 0 10px var(--accent-color);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--glow-color);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            transition: color 0.3s;
+            text-align: center; /* Centrar el título */
+            width: 100%; /* Asegurar que ocupe el ancho completo de la tarjeta */
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            color: var(--secondary-text-color);
+            margin-top: 0;
+            margin-bottom: 40px;
+            text-align: center; /* Centrar el subtítulo */
+            width: 100%; /* Asegurar que ocupe el ancho completo de la tarjeta */
+        }
+
+        .button {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: var(--background-color);
+            font-weight: bold;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 132, 0.6);
+            border: none;
+            animation: pulse-border 1.5s infinite;
+            cursor: pointer;
+            width: 100%; /* El botón también puede ocupar el 100% de la tarjeta */
+            box-sizing: border-box;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 132, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 255, 132, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 132, 0); }
+        }
+
+        .button:hover {
+            background-color: #00b362;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 255, 132, 0.8);
+        }
+
+        .features-grid { /* No aplicable directamente aquí */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .feature-item { /* No aplicable directamente aquí */
+            padding: 25px;
+            text-align: left;
+            border-radius: 8px;
+            background-color: var(--card-color);
+            border: 1px solid #30363d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-item:hover { /* No aplicable directamente aquí */
+            transform: translateY(-5px);
+            box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
+        }
+
+        .feature-item h3 { /* No aplicable directamente aquí */
+            font-weight: 500;
+            color: var(--accent-color);
+            font-size: 1.5em;
+            margin-top: 0;
+            text-shadow: 0 0 5px rgba(0, 255, 132, 0.4);
+        }
+
+        .feature-item p { /* No aplicable directamente aquí */
+            color: var(--secondary-text-color);
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+
+        .footer { /* No aplicable directamente aquí */
+            margin-top: 60px;
+            font-size: 0.8em;
+            color: var(--secondary-text-color);
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Estilos específicos para los inputs del formulario */
+        .card input[type="text"],
+        .card input[type="password"] {
+            width: 100%; /* Ocupa todo el ancho disponible en la tarjeta */
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            background-color: #0a0c0f; /* Un poco más oscuro que el fondo para contraste */
+            color: var(--text-color);
+            font-size: 1em;
+            box-shadow: inset 0 0 8px rgba(0, 255, 132, 0.2);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* Incluir padding y border en el width */
+        }
+
+        .card input[type="text"]:focus,
+        .card input[type="password"]:focus {
+            outline: none;
+            border-color: var(--glow-color);
+            box-shadow: inset 0 0 12px rgba(0, 255, 132, 0.4), 0 0 10px var(--glow-color);
+        }
+
+        /* Contenedor de campo de formulario para labels y errores */
+        .form-field-group {
+            width: 100%; /* Asegura que el grupo de campo ocupe el 100% de la tarjeta */
+            margin-bottom: 15px; /* Espacio entre grupos de campos */
+            text-align: left; /* Alinea etiquetas y errores a la izquierda */
+        }
+
+        /* Estilos para las etiquetas del formulario */
+        .card label {
+            display: block; /* Para que cada etiqueta esté en su propia línea */
+            margin-bottom: 5px; /* Espacio debajo de la etiqueta */
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Estilos para los mensajes de error */
+        .card span {
+            color: #ff4d4d; /* Rojo para los errores */
+            font-size: 0.9em;
+            display: block; /* Para que el error ocupe su propia línea */
+            margin-top: 5px; /* Espacio entre el input y el error */
+            text-align: left;
+        }
+
+        /* Estilos para el botón de submit */
+        .card input[type="submit"] {
+            margin-top: 20px; /* Espacio por encima del botón */
+            width: 100%; /* Ancho completo */
+            font-size: 1.2em; /* Texto más grande */
+            padding: 15px; /* Más padding */
+            border-radius: 8px; /* Bordes más redondeados */
+        }
+
+        /* Mensajes flash (Flask) */
+        .flash-message {
+            background-color: #28a745; /* Verde para éxito */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOut 5s forwards; /* Animación para aparecer y desaparecer */
+        }
+
+        .flash-message.danger {
+            background-color: #dc3545; /* Rojo para error */
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+    </style>
 </head>
 <body>
-    <form method="POST">
-        {{ form.hidden_tag() }} <div>
-            {{ form.username.label }}<br>
-            {{ form.username }}
-            {% for error in form.username.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
+    <div id="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Contenido principal que se muestra después de la carga -->
+    <div class="main-content content">
+        <div class="cube-background"></div> <!-- Fondo de cubos 3D -->
+        <div class="background-effect"></div> <!-- Efecto de brillo de fondo -->
+
+        <div class="card">
+            <h1>Inicio de Sesión</h1>
+            <p class="subtitle">Accede a tu cuenta</p>
+
+            {# Mensajes flash de Flask #}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-container">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                {{ form.hidden_tag() }} 
+                <div class="form-field-group">
+                    {{ form.username.label }}
+                    {{ form.username(class_="form-input", placeholder="Tu nombre de usuario") }}
+                    {% for error in form.username.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-field-group">
+                    {{ form.password.label }}
+                    {{ form.password(class_="form-input", placeholder="Tu contraseña") }}
+                    {% for error in form.password.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                {{ form.submit(class_="button") }}
+            </form>
         </div>
-        
-        <div>
-            {{ form.password.label }}<br>
-            {{ form.password }}
-            {% for error in form.password.errors %}
-                <span>{{ error }}</span>
-            {% endfor %}
-        </div>
-        
-        {{ form.submit }}
-    </form>
+    </div>
+
+    <script>
+        // Oculta el loader y muestra el contenido después de un tiempo o cuando la página carga
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader-container');
+            const content = document.querySelector('.main-content');
+            
+            // Simula un tiempo de carga mínimo (opcional, puedes quitarlo)
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.addEventListener('transitionend', () => loader.style.display = 'none');
+                content.style.opacity = '1';
+            }, 1000); // 1 segundo de simulación de carga
+        });
+    </script>
 </body>
 </html>
