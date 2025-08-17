@@ -3,8 +3,13 @@ from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId # Importa ObjectId para trabajar con los IDs de MongoDB
+from forms import LoginForm
+
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = ':&lY~-P)d7FOo}rZjg-?KZ@~E0z8V?J/hvy$hFn&#!vP!8JtCr'
+
 
 
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -28,6 +33,16 @@ except Exception as e:
 def page_not_found(e):
     """Manejo de errores 404 personalizado."""
     return render_template('404.html'), 404
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = form.username.data
+        password =form.password.data
+
+    return render_template("login.html",form=form)
 
 
 @app.route('/')
