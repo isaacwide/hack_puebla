@@ -12,6 +12,9 @@ import google.generativeai as genai
 MONGO_URI = os.getenv("MONGO_URI")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+print("DEBUG: GEMINI_API_KEY =", GEMINI_API_KEY)
+print("DEBUG: MONGO_URI =", MONGO_URI)
+
 if not MONGO_URI:
     print("Error: La variable de entorno MONGO_URI no está configurada.")
     exit()
