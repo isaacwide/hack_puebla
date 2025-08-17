@@ -21,10 +21,21 @@ function bloquearPagina() {
 }
 
 // Lógica principal: analizar la URL y bloquear si es peligrosa
+
+// Categorías que deben bloquearse (deben coincidir con las del backend)
+const categoriasBloqueo = [
+    "Sitios de apuestas",
+    "Contenido para adultos",
+    "Redes sociales no permitidas",
+    "Violencia explícita",
+    "Desafíos peligrosos",
+    "Fake news y desinformación"
+];
+
 (async function() {
     const url = window.location.href;
     const resultado = await analizarUrlConGemini(url);
-    if (resultado && resultado.toLowerCase().includes('peligros')) {
+    if (resultado && categoriasBloqueo.includes(resultado.trim())) {
         bloquearPagina();
     }
 })();
