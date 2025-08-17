@@ -50,10 +50,14 @@
             </div>
         </div>
         <div id="ayuda-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
+            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:340px;margin:auto;text-align:center;min-height:320px;display:flex;flex-direction:column;justify-content:center;">
                 <h3>¿Cómo te ayuda esta extensión?</h3>
-                <p>Esta extensión protege tu navegación bloqueando sitios peligrosos, mostrando alertas y permitiendo que tus padres configuren filtros para tu seguridad digital.</p>
-                <button id="close-ayuda">Cerrar</button>
+                <div id="ayuda-content"></div>
+                <div style="margin-top:16px;">
+                    <button id="ayuda-prev" style="margin-right:8px;">Anterior</button>
+                    <button id="ayuda-next">Siguiente</button>
+                </div>
+                <button id="close-ayuda" style="margin-top:12px;">Cerrar</button>
             </div>
         </div>
     </div>

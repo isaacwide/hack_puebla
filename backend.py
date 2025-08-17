@@ -1,12 +1,15 @@
 #pip install python-dotenv
 #pip install flask requests
+#pip install flask-cors
 from flask import Flask, request, jsonify
 import requests
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv()
 app = Flask(__name__)
+CORS(app, origins=["chrome-extension://mdfakkfpmjoknkmmdfmgcnfbkhgkalpk"])
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 @app.route('/analizar-url', methods=['POST'])
