@@ -27,6 +27,7 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
 
         /* --- Estilos del sistema de carga --- */
@@ -69,6 +70,42 @@
             transition: opacity 1s ease-in-out;
         }
 
+        /* --- Animación de cubos en 3D --- */
+        .cube-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            perspective: 800px;
+            overflow: hidden;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .cube-background::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 500%;
+            height: 500%;
+            background-image: radial-gradient(var(--accent-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: cube-grid 30s linear infinite;
+        }
+
+        @keyframes cube-grid {
+            from {
+                transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg) scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg) scale(1.5);
+                opacity: 1;
+            }
+        }
+
         /* --- El resto de tus estilos --- */
         .container {
             max-width: 1100px;
@@ -87,6 +124,7 @@
             background: radial-gradient(circle at 10% 20%, #0d1117, transparent 20%),
                         radial-gradient(circle at 90% 80%, #161b22, transparent 25%);
             animation: pulse-glow 15s infinite ease-in-out;
+            z-index: -1;
         }
 
         @keyframes pulse-glow {
@@ -204,8 +242,7 @@
 
     <div class="content">
         <div class="background-effect"></div>
-
-        <div class="container">
+        <div class="cube-background"></div> <div class="container">
             <div class="card">
                 <h1>HACK_PUEBLA</h1>
                 <h2 class="subtitle">Análisis de Amenazas de IA</h2>
@@ -229,7 +266,7 @@
             </div>
 
             <div class="footer">
-                <p>// Acceso al sistema v1.0 // © 2024 HACK_PUEBLA.</p>
+                <p>// Binary Search The Question // © 2024 HACK_PUEBLA.</p>
             </div>
         </div>
     </div>
@@ -239,18 +276,15 @@
             const loaderContainer = document.getElementById('loader-container');
             const content = document.querySelector('.content');
 
-            // Asegúrate de que los elementos existan antes de manipularlos
             if (loaderContainer && content) {
-                // Establece un tiempo de espera para que se vea la animación
                 setTimeout(() => {
-                    loaderContainer.style.opacity = '0'; // Hace que el cargador se desvanezca
-                    content.style.opacity = '1';         // Muestra el contenido principal
+                    loaderContainer.style.opacity = '0';
+                    content.style.opacity = '1';
                     
-                    // Opcional: Remueve el cargador del DOM después de la transición
                     setTimeout(() => {
                         loaderContainer.style.display = 'none';
-                    }, 500); // Coincide con la duración de la transición de opacidad
-                }, 2500); // 2.5 segundos de espera
+                    }, 500);
+                }, 2500);
             }
         });
     </script>

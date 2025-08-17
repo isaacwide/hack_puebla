@@ -2,36 +2,218 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard de Control Parental</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Reportes</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-        .incidente { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .incidente-texto { font-style: italic; color: #555; }
-        .incidente-url { font-size: 0.9em; }
-        .badge { font-weight: bold; padding: 2px 5px; border-radius: 3px; color: white; }
-        .riesgo_medio { background-color: orange; }
-        .riesgo_alto { background-color: red; }
-        .riesgo_grave { background-color: darkred; }
+        :root {
+            --background-color: #0d1117;
+            --card-color: #161b22;
+            --text-color: #ecf0f1;
+            --accent-color: #00ff84; /* Verde neón */
+            --glow-color: #00ff84;
+            --secondary-text-color: #8b949e;
+            --border-glow: rgba(0, 255, 132, 0.4);
+            --danger-color: #ff5252;
+            --warning-color: #ffc107;
+            --info-color: #2196F3;
+        }
+
+        body {
+            font-family: 'Consolas', 'Menlo', monospace;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: left;
+            border-bottom: 2px solid var(--card-color);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--glow-color);
+            letter-spacing: 1px;
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: var(--card-color);
+            color: var(--accent-color);
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            background-color: var(--accent-color);
+            color: var(--background-color);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .report-card {
+            background-color: var(--card-color);
+            padding: 25px;
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 255, 132, 0.3);
+        }
+
+        .report-card h3 {
+            margin-top: 0;
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+
+        .report-card .report-text {
+            color: var(--secondary-text-color);
+            font-size: 0.9em;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+
+        .report-card .metadata {
+            font-size: 0.8em;
+            color: #777;
+            border-top: 1px solid #30363d;
+            padding-top: 10px;
+        }
+        
+        .report-card .metadata p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .report-card .metadata .label {
+            color: var(--secondary-text-color);
+        }
+        
+        .report-card .category-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Colores para las categorías */
+        .category-badge.riesgo_grave {
+            background-color: var(--danger-color);
+            color: white;
+            box-shadow: 0 0 5px var(--danger-color);
+        }
+        .category-badge.riesgo_alto {
+            background-color: var(--danger-color);
+            color: white;
+            box-shadow: 0 0 5px var(--danger-color);
+        }
+        .category-badge.riesgo_medio {
+            background-color: var(--warning-color);
+            color: var(--background-color);
+            box-shadow: 0 0 5px var(--warning-color);
+        }
+        .category-badge.riesgo_bajo {
+            background-color: var(--info-color);
+            color: white;
+            box-shadow: 0 0 5px var(--info-color);
+        }
+
+        .empty-state {
+            color: var(--secondary-text-color);
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .back-to-home {
+            margin-top: 40px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h1>Dashboard de Control Parental</h1>
-    <p>Revisa los incidentes de riesgo detectados por la extensión de navegador.</p>
 
-    <div id="incidents-list">
+    <div class="container">
+        <header>
+            <h1>Dashboard de Monitoreo</h1>
+            <p>Reportes de incidentes de seguridad detectados por la extensión.</p>
+        </header>
+        
         {% if incidentes %}
+        <div class="report-grid">
             {% for incidente in incidentes %}
-                <div class="incidente">
-                    <span class="badge {{ incidente.categoria }}">{{ incidente.categoria.replace('_', ' ').upper() }}</span>
-                    <p><strong>Motivo:</strong> {{ incidente.motivo }}</p>
-                    <p class="incidente-texto"><strong>Texto:</strong> "{{ incidente.texto }}"</p>
-                    <p class="incidente-url"><strong>URL:</strong> <a href="{{ incidente.url }}" target="_blank">{{ incidente.url }}</a></p>
-                    <p class="incidente-url"><strong>Fecha:</strong> {{ incidente.fecha }}</p>
+            <div class="report-card">
+                <span class="category-badge {{ incidente.categoria | replace(' ', '_') }}">{{ incidente.categoria | replace('_', ' ') }}</span>
+                <h3>{{ incidente.motivo }}</h3>
+                <p class="report-text">{{ incidente.texto }}</p>
+                <div class="metadata">
+                    <p>
+                        <span class="label">ID de Usuario:</span>
+                        <span>{{ incidente.usuario_id }}</span>
+                    </p>
+                    <p>
+                        <span class="label">Tipo:</span>
+                        <span>{{ incidente.tipo_de_incidente }}</span>
+                    </p>
+                    <p>
+                        <span class="label">URL:</span>
+                        <span>{{ incidente.url }}</span>
+                    </p>
+                    <p>
+                        <span class="label">Fecha:</span>
+                        <span>{{ incidente.fecha }}</span>
+                    </p>
                 </div>
+            </div>
             {% endfor %}
+        </div>
         {% else %}
-            <p>No se han registrado incidentes de riesgo.</p>
+        <div class="empty-state">
+            <p>No se han registrado incidentes de seguridad.</p>
+            <p>La extensión está monitoreando en segundo plano...</p>
+        </div>
         {% endif %}
+
+        <div class="back-to-home">
+            <a href="/" class="home-button">Volver al Inicio</a>
+        </div>
     </div>
+
 </body>
 </html>
