@@ -4,11 +4,11 @@
 // Analiza la URL actual enviando un mensaje al background
 function analizarUrlConGemini(url) {
     return new Promise((resolve) => {
-        chrome.runtime.sendMessage({ type: 'ANALIZAR_URL', url }, (response) => {
-            if (response && response.resultado) {
-                resolve(response.resultado);
+        chrome.runtime.sendMessage({ action: 'analyzeUrl', url }, (response) => {
+            if (response && response.status === 'success') {
+                resolve(response.result);
             } else {
-                console.error('Error al consultar Gemini:', response && response.error);
+                console.error('Error al consultar Gemini:', response && response.message);
                 resolve(null);
             }
         });

@@ -1,66 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Chrome Extension Popup</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --background-color: #0d1117;
+            --card-color: #161b22;
+            --text-color: #ecf0f1;
+            --accent-color: #00ff84; /* Verde neón */
+            --glow-color: #00ff84;
+            --secondary-text-color: #8b949e;
+            --border-glow: rgba(0, 255, 132, 0.4);
+        }
+
+        body {
+            font-family: 'Consolas', 'Menlo', monospace;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            min-width: 350px;
+            min-height: 200px;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--border-glow), 0 0 5px var(--accent-color);
+            padding: 30px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 0 25px var(--border-glow), 0 0 10px var(--accent-color);
+        }
+
+        h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--glow-color);
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            transition: color 0.3s;
+        }
+
+        p {
+            color: var(--secondary-text-color);
+            font-size: 0.95em;
+            margin-bottom: 25px;
+        }
+        
+        .button {
+            display: block;
+            background-color: var(--accent-color);
+            color: var(--background-color);
+            font-weight: bold;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 132, 0.6);
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .button:hover {
+            background-color: #00b362;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 255, 132, 0.8);
+        }
+        
+        .button:disabled {
+            background: #444;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Estilos generales de los elementos */
+        input {
+            width: 100px;
+            padding: 8px;
+            background-color: #0d1117;
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            text-align: center;
+            color: var(--text-color);
+            font-family: 'Consolas', monospace;
+        }
+        
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+            color: var(--secondary-text-color);
+            font-size: 0.9em;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Estilos para modales */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 25px;
+            border: 1px solid var(--accent-color);
+            border-radius: 12px;
+            width: 85%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 0 15px var(--border-glow);
+        }
+        
+        /* Estilos para lista de categorías */
+        #categorias-list {
+            list-style: none;
+            text-align: left;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        #categorias-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #30363d;
+            font-size: 0.9em;
+        }
+        
+        #categorias-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Estilos para mensajes de error/info */
+        #pin-error, #logout-pin-error {
+            color: #ff3b30;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        
+        #google-user-info {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
-    <div id="welcome-container" style="display:none;">
+
+    <div id="welcome-container" class="container" style="display:none;">
         <h1>Bienvenido/a</h1>
         <p>Esta extensión ayuda a proteger la actividad digital de menores. Antes de continuar, por favor acepta los términos y la <a href="https://github.com/isaacwide/hack_puebla/blob/main/my-chrome-extension/PRIVACY_POLICY.md" target="_blank">política de privacidad</a>.</p>
-        <button id="google-link-btn" style="margin: 12px 0;">Vincular cuenta de Google</button>
+        <button id="google-link-btn" class="button">Vincular cuenta de Google</button>
         <div id="google-user-info" style="display:none; font-size:0.95em; margin-bottom:8px;"></div>
         <div id="pin-setup" style="margin:16px 0; display:none;">
             <label>Establece un PIN de 4 dígitos para proteger la configuración:<br>
-                <input type="password" id="pin-input" maxlength="4" style="width:80px;" pattern="\d{4}" autocomplete="new-password">
+                <input type="password" id="pin-input" maxlength="4" pattern="\d{4}" autocomplete="new-password">
             </label>
-            <div id="pin-error" style="color:red;display:none;font-size:0.9em;">El PIN debe ser de 4 dígitos numéricos.</div>
-            <button id="set-pin-btn" style="margin-top:8px;">Guardar PIN</button>
+            <div id="pin-error" style="color:#ff5252;display:none;font-size:0.9em;">El PIN debe ser de 4 dígitos numéricos.</div>
+            <button id="set-pin-btn" class="button">Guardar PIN</button>
         </div>
         <label style="display:block; margin: 16px 0;">
             <input type="checkbox" id="accept-terms"> He leído y acepto los términos y la política de privacidad
         </label>
-        <button id="accept-button" disabled>Aceptar y continuar</button>
+        <button id="accept-button" class="button" disabled>Aceptar y continuar</button>
     </div>
-    <div id="popup-container" style="display:none;">
+
+    <div id="popup-container" class="container" style="display:none;">
         <h1>Panel de Control Parental</h1>
-        <div id="privacy-notice" style="font-size:0.9em; color:#666; margin:16px 0 8px 0;">
-            <strong>Transparencia:</strong> Esta extensión analiza las URLs visitadas usando Google Gemini para proteger a menores. No recolecta información personal ni comparte datos con otros terceros. <a href="https://github.com/isaacwide/hack_puebla/blob/main/my-chrome-extension/PRIVACY_POLICY.md" target="_blank" style="color:#4f46e5; text-decoration:underline;">Política de privacidad</a>.
-        </div>
-        <button id="btn-categorias" style="width:100%;margin:8px 0;">Ver categorías filtradas</button>
-        <button id="btn-ayuda" style="width:100%;margin:8px 0;">¿Cómo te ayuda esta extensión?</button>
-        <button id="btn-logout" style="width:100%;margin:8px 0;">Cerrar sesión (requiere PIN)</button>
-        <div id="logout-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
-                <h3>Verificación de PIN</h3>
-                <p>Introduce el PIN de 4 dígitos para cerrar sesión:</p>
-                <input type="password" id="logout-pin-input" maxlength="4" style="width:80px;" pattern="\d{4}" autocomplete="off">
-                <div style="color:red;font-size:0.9em;display:none;" id="logout-pin-error">PIN incorrecto</div>
-                <button id="confirm-logout">Cerrar sesión</button>
-                <button id="cancel-logout" style="margin-left:8px;">Cancelar</button>
-            </div>
-        </div>
-        <div id="categorias-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
-                <h3>Categorías filtradas</h3>
-                <ul id="categorias-list" style="text-align:left;"></ul>
-                <button id="close-categorias">Cerrar</button>
-            </div>
-        </div>
-        <div id="ayuda-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:340px;margin:auto;text-align:center;min-height:320px;display:flex;flex-direction:column;justify-content:center;">
-                <h3>¿Cómo te ayuda esta extensión?</h3>
-                <div id="ayuda-content"></div>
-                <div style="margin-top:16px;">
-                    <button id="ayuda-prev" style="margin-right:8px;">Anterior</button>
-                    <button id="ayuda-next">Siguiente</button>
-                </div>
-                <button id="close-ayuda" style="margin-top:12px;">Cerrar</button>
-            </div>
+        <p>Gestiona la protección y el bienestar digital de tu hijo.</p>
+        <button id="btn-categorias" class="button">Ver categorías filtradas</button>
+        <button id="btn-ayuda" class="button">¿Cómo te ayuda esta extensión?</button>
+        <button id="btn-logout" class="button">Cerrar sesión (requiere PIN)</button>
+    </div>
+
+    <div id="logout-modal" class="modal">
+        <div class="modal-content">
+            <h3>Verificación de PIN</h3>
+            <p>Introduce el PIN de 4 dígitos para cerrar sesión:</p>
+            <input type="password" id="logout-pin-input" maxlength="4" pattern="\d{4}" autocomplete="off">
+            <div style="color:#ff5252;font-size:0.9em;display:none;" id="logout-pin-error">PIN incorrecto</div>
+            <button id="confirm-logout" class="button">Cerrar sesión</button>
+            <button id="cancel-logout" class="button" style="background:#888; border:none; margin-top: 8px;">Cancelar</button>
         </div>
     </div>
+    
+    <div id="categorias-modal" class="modal">
+        <div class="modal-content">
+            <h3>Categorías filtradas</h3>
+            <ul id="categorias-list" style="text-align:left; padding: 0;"></ul>
+            <button id="close-categorias" class="button">Cerrar</button>
+        </div>
+    </div>
+
+
+    <div id="ayuda-modal" class="modal">
+        <div class="modal-content">
+            <h3>¿Cómo te ayuda esta extensión?</h3>
+            <div id="ayuda-content" style="margin-bottom:18px;"></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <button id="ayuda-prev" class="button" style="width:48%;background:#222; color:var(--accent-color); border:1px solid var(--accent-color);">Anterior</button>
+                <button id="ayuda-next" class="button" style="width:48%;background:var(--accent-color); color:var(--background-color);">Siguiente</button>
+            </div>
+            <button id="close-ayuda" class="button">Cerrar</button>
+        </div>
+    </div>
+
     <script src="popup.js"></script>
 </body>
 </html>
