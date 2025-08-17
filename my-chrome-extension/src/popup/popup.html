@@ -4,87 +4,191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizador de URL</title>
-    <!-- Incluye Tailwind CSS para un estilo moderno -->
+    <!-- Incluye Tailwind CSS y Font Awesome para un estilo moderno con iconos -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
+        /*
+         * Diseño ultra-futurista y neón avanzado:
+         * 1. El cuerpo es completamente transparente y sin padding.
+         * 2. Título con efecto de glitch y distorsión.
+         * 3. Contenedor principal con un marco de neón animado y un pulso intenso, ahora con un fondo semi-opaco.
+         * 4. Botones con un diseño más complejo, íconos y efectos de brillo.
+         * 5. Indicador de carga de doble anillo.
+         */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
         :root {
-            --background-color: #0d1117;
-            --card-color: #161b22;
+            --background-color: #05080e; /* Manteniendo la variable pero no se usa */
+            --card-color-semi-opaque: rgba(14, 18, 24, 0.95); /* Fondo de la tarjeta semi-opaco */
             --text-color: #ecf0f1;
             --accent-color: #00ff84; /* Verde neón */
-            --glow-color: #00ff84;
-            --secondary-text-color: #8b949e;
-            --border-glow: rgba(0, 255, 132, 0.4);
+            --glow-color: rgba(0, 255, 132, 0.8);
+            --secondary-text-color: #94a3b8;
         }
 
         body {
-            font-family: 'Consolas', 'Menlo', monospace;
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            background-color: rgba(0,0,0,0); /* Fondo completamente transparente */
             color: var(--text-color);
-            background-color: var(--background-color);
             margin: 0;
-            padding: 20px;
-            min-width: 350px;
+            padding: 0; /* Eliminado el padding del body */
+            width: 350px;
             min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
         }
-
+        
         .container {
-            background-color: var(--card-color);
-            border: 1px solid var(--accent-color);
-            border-radius: 12px;
-            box-shadow: 0 0 15px var(--border-glow), 0 0 5px var(--accent-color);
-            padding: 30px;
+            background-color: var(--card-color-semi-opaque); /* Usando el nuevo color semi-opaco */
+            backdrop-filter: blur(10px); /* Añadido un efecto de cristal esmerilado para un diseño más moderno */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid #2d3748;
+            border-radius: 0; /* Esquinas totalmente cuadradas */
+            box-shadow: 0 0 40px var(--glow-color); /* Sombra más pronunciada */
+            padding: 30px; /* Padding movido al contenedor */
             width: 100%;
             max-width: 320px;
             text-align: center;
-            transition: all 0.5s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
-            z-index: 20;
-            box-sizing: border-box;
+            z-index: 2;
+            animation: pulse-glow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+            overflow: hidden; /* Oculta el exceso del pseudo-elemento animado */
+        }
+        
+        /* Marco de neón animado */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0; /* Se ha actualizado el radio del borde para que coincida con el contenedor */
+            background: linear-gradient(45deg, #00ff84, #00b362, #00ff84, #00b362);
+            background-size: 400% 400%;
+            opacity: 0.2;
+            z-index: -1;
+            animation: border-glow 3s infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 25px var(--glow-color);
+            }
+            50% {
+                box-shadow: 0 0 45px var(--glow-color);
+            }
+        }
+        
+        @keyframes border-glow {
+            0% {
+                background-position: 0% 50%;
+                filter: blur(8px);
+            }
+            100% {
+                background-position: 100% 50%;
+                filter: blur(12px);
+            }
         }
 
         .container:hover {
-            transform: scale(1.01);
-            box-shadow: 0 0 25px var(--border-glow), 0 0 10px var(--accent-color);
+            box-shadow: 0 0 60px var(--glow-color); /* Sombra más intensa al pasar el cursor */
+            /* Se ha eliminado la propiedad transform: translateY(-8px); */
+            animation: none;
         }
 
         h1 {
+            font-family: 'Roboto Mono', monospace;
             font-size: 1.8em;
             font-weight: 700;
             color: var(--accent-color);
-            text-shadow: 0 0 8px var(--glow-color);
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            transition: color 0.3s;
-        }
-
-        p {
-            color: var(--secondary-text-color);
-            font-size: 0.95em;
-            margin-bottom: 25px;
+            text-shadow: 0 0 20px var(--glow-color), 0 0 40px rgba(0, 255, 132, 0.4);
+            letter-spacing: 2.5px;
+            margin-bottom: 20px;
+            animation: glitch 1.5s infinite;
         }
         
+        @keyframes glitch {
+            0% { text-shadow: 0 0 20px var(--glow-color); }
+            20% { text-shadow: 0 0 20px var(--glow-color), 3px 3px 0 red, -3px -3px 0 blue; }
+            40% { text-shadow: 0 0 20px var(--glow-color); }
+            60% { text-shadow: 0 0 20px var(--glow-color), -3px 3px 0 blue, 3px -3px 0 red; }
+            80% { text-shadow: 0 0 20px var(--glow-color); }
+            100% { text-shadow: 0 0 20px var(--glow-color); }
+        }
+        
+        #content-display {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)); /* Degradado sutil */
+            border: 1px solid rgba(0, 255, 132, 0.4);
+            border-radius: 0; /* Esquinas totalmente cuadradas */
+            padding: 1rem;
+            margin-bottom: 25px;
+            font-family: 'Roboto Mono', monospace;
+            text-align: left;
+            word-wrap: break-word;
+            box-shadow: inset 0 0 10px rgba(0, 255, 132, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #content-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+            animation: scanline 4s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        
+        #content-display p {
+            font-size: 0.85em;
+            color: var(--secondary-text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
         .button {
-            display: block;
-            background-color: var(--accent-color);
-            color: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #00ff84, #00b362);
+            color: #1a1a2e;
             font-weight: bold;
             padding: 12px 28px;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 132, 0.6);
+            box-shadow: 0 0 15px var(--glow-color);
             border: none;
             cursor: pointer;
             width: 100%;
             margin-top: 15px;
-            font-family: 'Consolas', monospace;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         .button:hover {
-            background-color: #00b362;
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(0, 255, 132, 0.8);
+            background: linear-gradient(45deg, #00e676, #00995c);
+            box-shadow: 0 0 35px var(--glow-color), 0 0 15px rgba(0, 255, 132, 0.8);
+            transform: scale(1.03);
         }
         
         .button:disabled {
@@ -95,25 +199,34 @@
             box-shadow: none;
         }
 
-        /* Estilos para el indicador de carga */
         #loading-spinner {
             display: none;
-            border: 4px solid rgba(0, 255, 132, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid var(--accent-color);
-            width: 40px;
-            height: 40px;
-            -webkit-animation: spin 1s linear infinite; /* Para Safari */
-            animation: spin 1s linear infinite;
+            position: relative;
+            width: 50px;
+            height: 50px;
             margin: 20px auto;
         }
 
-        @-webkit-keyframes spin {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
+        #loading-spinner div {
+            box-sizing: border-box;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            animation: spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
         }
 
-        @keyframes spin {
+        #loading-spinner div:nth-child(1) {
+            border-top-color: var(--accent-color);
+        }
+
+        #loading-spinner div:nth-child(2) {
+            border-top-color: var(--secondary-text-color);
+            animation-delay: -0.6s;
+        }
+        
+        @keyframes spinner {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -122,15 +235,23 @@
 <body>
     <div class="container">
         <h1>Análisis de Contenido</h1>
+        
         <div id="content-display" class="w-full text-center">
-            <p class="text-gray-400">Analizando el sitio actual...</p>
+            <p>Analizando el sitio actual...</p>
         </div>
 
-        <!-- Indicador de carga -->
-        <div id="loading-spinner"></div>
+        <!-- Indicador de carga mejorado -->
+        <div id="loading-spinner">
+            <div></div>
+            <div></div>
+        </div>
         
-        <button id="refresh-button" class="button">Volver a Analizar</button>
+        <button id="refresh-button" class="button">
+            <i class="fas fa-sync-alt fa-spin-hover"></i>
+            Volver a Analizar
+        </button>
     </div>
+    
     <script src="popup.js"></script>
 </body>
 </html>
