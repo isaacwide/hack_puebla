@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Inicio de Sesión</title>
+    <title>Registro de Usuario</title>
     <style>
+        /* Reutiliza los estilos globales que ya tienes en login.html */
         :root {
             --background-color: #0d1117;
             --card-color: #161b22;
@@ -28,6 +29,7 @@
             position: relative;
         }
 
+        /* Puedes copiar/pegar los estilos del loader y animaciones de fondo si los deseas aquí */
         /* --- Estilos del sistema de carga --- */
         #loader-container {
             position: fixed;
@@ -36,7 +38,7 @@
             width: 100%;
             height: 100%;
             background: var(--background-color);
-            display: flex;
+            display: none; /* Oculto por defecto en esta página si no lo usas */
             justify-content: center;
             align-items: center;
             z-index: 9999;
@@ -62,13 +64,11 @@
             100% { box-shadow: 0 0 20px var(--glow-color); }
         }
         
-        /* Contenido de la página (inicialmente invisible) */
         .content {
-            opacity: 0;
+            opacity: 1; /* Visible por defecto */
             transition: opacity 1s ease-in-out;
         }
 
-        /* --- Animación de cubos en 3D (ajustada para el login) --- */
         .cube-background {
             position: absolute;
             top: 0;
@@ -104,14 +104,6 @@
             }
         }
 
-        /* --- El resto de tus estilos --- */
-        .container { /* Puede envolver el card si quieres más elementos alrededor */
-            max-width: 1100px;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            z-index: 10;
-        }
         .background-effect {
             position: fixed;
             top: 0;
@@ -131,6 +123,7 @@
             100% { transform: scale(1); }
         }
 
+        /* Estilos de la tarjeta (card) y elementos del formulario */
         .card {
             background-color: var(--card-color);
             border: 1px solid var(--accent-color);
@@ -140,14 +133,13 @@
             transition: all 0.5s ease;
             position: relative;
             z-index: 20;
-            /* Estilos específicos para el formulario dentro de la tarjeta */
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Espacio entre los elementos del formulario */
-            align-items: center; /* Centrar elementos del formulario horizontalmente */
-            width: fit-content; /* Ajustar el ancho de la tarjeta al contenido */
-            max-width: 90%; /* Máximo ancho para responsividad */
-            box-sizing: border-box; /* Incluir padding y border en el width */
+            gap: 20px;
+            align-items: center;
+            width: fit-content;
+            max-width: 90%;
+            box-sizing: border-box;
         }
         
         .card:hover {
@@ -163,8 +155,8 @@
             letter-spacing: 2px;
             margin-bottom: 5px;
             transition: color 0.3s;
-            text-align: center; /* Centrar el título */
-            width: 100%; /* Asegurar que ocupe el ancho completo de la tarjeta */
+            text-align: center;
+            width: 100%;
         }
 
         .subtitle {
@@ -172,8 +164,8 @@
             color: var(--secondary-text-color);
             margin-top: 0;
             margin-bottom: 40px;
-            text-align: center; /* Centrar el subtítulo */
-            width: 100%; /* Asegurar que ocupe el ancho completo de la tarjeta */
+            text-align: center;
+            width: 100%;
         }
 
         .button {
@@ -189,7 +181,7 @@
             border: none;
             animation: pulse-border 1.5s infinite;
             cursor: pointer;
-            width: 100%; /* El botón también puede ocupar el 100% de la tarjeta */
+            width: 100%;
             box-sizing: border-box;
         }
 
@@ -205,62 +197,20 @@
             box-shadow: 0 0 20px rgba(0, 255, 132, 0.8);
         }
 
-        .features-grid { /* No aplicable directamente aquí */
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 50px;
-        }
-
-        .feature-item { /* No aplicable directamente aquí */
-            padding: 25px;
-            text-align: left;
-            border-radius: 8px;
-            background-color: var(--card-color);
-            border: 1px solid #30363d;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .feature-item:hover { /* No aplicable directamente aquí */
-            transform: translateY(-5px);
-            box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
-        }
-
-        .feature-item h3 { /* No aplicable directamente aquí */
-            font-weight: 500;
-            color: var(--accent-color);
-            font-size: 1.5em;
-            margin-top: 0;
-            text-shadow: 0 0 5px rgba(0, 255, 132, 0.4);
-        }
-
-        .feature-item p { /* No aplicable directamente aquí */
-            color: var(--secondary-text-color);
-            margin-top: 10px;
-            font-size: 0.95em;
-        }
-
-        .footer { /* No aplicable directamente aquí */
-            margin-top: 60px;
-            font-size: 0.8em;
-            color: var(--secondary-text-color);
-            text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
-        }
-
         /* Estilos específicos para los inputs del formulario */
         .card input[type="text"],
         .card input[type="password"] {
-            width: 100%; /* Ocupa todo el ancho disponible en la tarjeta */
+            width: 100%;
             padding: 12px 15px;
             margin-bottom: 15px;
             border: 1px solid var(--accent-color);
             border-radius: 8px;
-            background-color: #0a0c0f; /* Un poco más oscuro que el fondo para contraste */
+            background-color: #0a0c0f;
             color: var(--text-color);
             font-size: 1em;
             box-shadow: inset 0 0 8px rgba(0, 255, 132, 0.2);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            box-sizing: border-box; /* Incluir padding y border en el width */
+            box-sizing: border-box;
         }
 
         .card input[type="text"]:focus,
@@ -272,15 +222,15 @@
 
         /* Contenedor de campo de formulario para labels y errores */
         .form-field-group {
-            width: 100%; /* Asegura que el grupo de campo ocupe el 100% de la tarjeta */
-            margin-bottom: 15px; /* Espacio entre grupos de campos */
-            text-align: left; /* Alinea etiquetas y errores a la izquierda */
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: left;
         }
 
         /* Estilos para las etiquetas del formulario */
         .card label {
-            display: block; /* Para que cada etiqueta esté en su propia línea */
-            margin-bottom: 5px; /* Espacio debajo de la etiqueta */
+            display: block;
+            margin-bottom: 5px;
             color: var(--accent-color);
             font-weight: bold;
             font-size: 1.1em;
@@ -288,20 +238,20 @@
 
         /* Estilos para los mensajes de error */
         .card span {
-            color: #ff4d4d; /* Rojo para los errores */
+            color: #ff4d4d;
             font-size: 0.9em;
-            display: block; /* Para que el error ocupe su propia línea */
-            margin-top: 5px; /* Espacio entre el input y el error */
+            display: block;
+            margin-top: 5px;
             text-align: left;
         }
 
         /* Estilos para el botón de submit */
         .card input[type="submit"] {
-            margin-top: 20px; /* Espacio por encima del botón */
-            width: 100%; /* Ancho completo */
-            font-size: 1.2em; /* Texto más grande */
-            padding: 15px; /* Más padding */
-            border-radius: 8px; /* Bordes más redondeados */
+            margin-top: 20px;
+            width: 100%;
+            font-size: 1.2em;
+            padding: 15px;
+            border-radius: 8px;
         }
 
         /* Mensajes flash (Flask) */
@@ -313,7 +263,7 @@
             margin-bottom: 20px;
             text-align: center;
             opacity: 0;
-            animation: fadeInOut 5s forwards; /* Animación para aparecer y desaparecer */
+            animation: fadeInOut 5s forwards;
         }
 
         .flash-message.danger {
@@ -326,11 +276,11 @@
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-20px); }
         }
-
     </style>
 </head>
 <body>
-    <div id="loader-container">
+    <!-- El loader no es necesario para una página de registro, pero se mantiene oculto si el CSS lo gestiona -->
+    <div id="loader-container" style="display: none;">
         <div class="loader"></div>
     </div>
 
@@ -340,8 +290,8 @@
         <div class="background-effect"></div> <!-- Efecto de brillo de fondo -->
 
         <div class="card">
-            <h1>Inicio de Sesión</h1>
-            <p class="subtitle">Accede a tu cuenta</p>
+            <h1>Registro</h1>
+            <p class="subtitle">Crea tu nueva cuenta</p>
 
             {# Mensajes flash de Flask #}
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -358,7 +308,7 @@
                 {{ form.hidden_tag() }} 
                 <div class="form-field-group">
                     {{ form.username.label }}
-                    {{ form.username(class_="form-input", placeholder="Tu nombre de usuario") }}
+                    {{ form.username(class_="form-input", placeholder="Elige un nombre de usuario") }}
                     {% for error in form.username.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
@@ -366,8 +316,16 @@
                 
                 <div class="form-field-group">
                     {{ form.password.label }}
-                    {{ form.password(class_="form-input", placeholder="Tu contraseña") }}
+                    {{ form.password(class_="form-input", placeholder="Crea tu contraseña") }}
                     {% for error in form.password.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field-group">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class_="form-input", placeholder="Repite tu contraseña") }}
+                    {% for error in form.confirm_password.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
@@ -375,23 +333,23 @@
                 {{ form.submit(class_="button") }}
             </form>
             <p style="margin-top: 20px; color: var(--secondary-text-color); font-size: 0.9em;">
-                ¿No tienes cuenta? <a href="{{ url_for('register') }}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Regístrate aquí</a>.
+                ¿Ya tienes cuenta? <a href="{{ url_for('login') }}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">Inicia sesión aquí</a>.
             </p>
         </div>
     </div>
 
     <script>
-        // Oculta el loader y muestra el contenido después de un tiempo o cuando la página carga
+        // Este script es para el loader, si lo usas en otras páginas.
+        // En la página de registro/login, el contenido es visible por defecto.
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader-container');
             const content = document.querySelector('.main-content');
             
-            // Simula un tiempo de carga mínimo (opcional, puedes quitarlo)
-            setTimeout(() => {
+            if (loader && getComputedStyle(loader).display !== 'none') {
                 loader.style.opacity = '0';
                 loader.addEventListener('transitionend', () => loader.style.display = 'none');
-                content.style.opacity = '1';
-            }, 1000); // 1 segundo de simulación de carga
+            }
+            content.style.opacity = '1';
         });
     </script>
 </body>
