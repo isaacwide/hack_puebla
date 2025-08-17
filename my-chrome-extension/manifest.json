@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "My Chrome Extension",
+  "name": "Parental Control",
   "version": "1.0",
-  "description": "A simple Chrome extension example.",
+  "description": "A Chrome extension for parental control.",
   "permissions": [
     "activeTab",
     "identity"
   ],
   "oauth2": {
-    "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+    "client_id": "993464138153-0k24atog429p439hi24k79l4m37v5785.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/userinfo.email"
     ]
