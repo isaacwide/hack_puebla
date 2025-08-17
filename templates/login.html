@@ -381,12 +381,12 @@
     </div>
 
     <script>
-        // Oculta el loader y muestra el contenido después de un tiempo o cuando la página carga
+        
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader-container');
             const content = document.querySelector('.main-content');
             
-            // Simula un tiempo de carga mínimo (opcional, puedes quitarlo)
+        
             setTimeout(() => {
                 loader.style.opacity = '0';
                 loader.addEventListener('transitionend', () => loader.style.display = 'none');

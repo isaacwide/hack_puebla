@@ -224,13 +224,12 @@
     </div>
 
     <script>
-        // No se necesita un loader aquí, pero si el CSS del loader se comparte,
-        // este script asegura que el contenido sea visible.
+        
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader-container');
             const content = document.querySelector('.main-content');
             
-            // Si el loader existe y está visible (que no debería en 404), ocultarlo.
+           
             if (loader && getComputedStyle(loader).display !== 'none') {
                 loader.style.opacity = '0';
                 loader.addEventListener('transitionend', () => loader.style.display = 'none');
