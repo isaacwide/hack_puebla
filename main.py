@@ -1,78 +1,65 @@
+import os
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
-import os
+from pymongo import MongoClient
+from bson.objectid import ObjectId # Importa ObjectId para trabajar con los IDs de MongoDB
 
 app = Flask(__name__)
-DATABASE = os.path.join(os.getcwd(), 'incidentes.db')
 
-def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
 
-def create_table():
-    conn = get_db_connection()
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS incidentes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            texto TEXT NOT NULL,
-            url TEXT NOT NULL,
-            categoria TEXT NOT NULL,
-            motivo TEXT NOT NULL,
-            fecha TIMESTAMP NOT NULL
-        );
-    ''')
-    conn.commit()
-    conn.close()
+MONGO_URI = os.environ.get('MONGO_URI')
 
-create_table()
+if not MONGO_URI:
+    print("ERROR: La variable de entorno MONGO_URI no está configurada.")
+    print("Por favor, establece MONGO_URI con tu cadena de conexión de MongoDB Atlas.")
+    exit("Configuración de MONGO_URI fallida. Saliendo.")
 
-# --- NUEVA RUTA para la página de inicio ---
+try:
+    client = MongoClient(MONGO_URI)
+    db = client.get_database('main_dataBase') 
+    incidentes_collection = db.data 
+    print("Conexión a MongoDB Atlas establecida con éxito.")
+except Exception as e:
+    print(f"ERROR: No se pudo conectar a MongoDB Atlas: {e}")
+    exit("Fallo en la conexión a la base de datos. Saliendo.")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Manejo de errores 404 personalizado."""
+    return render_template('404.html'), 404
+
+
 @app.route('/')
 def landing_page():
+    """Sirve la página de inicio."""
     return render_template('landing_page.html')
 
 @app.route('/dashboard')
 def dashboard():
-    if not incidentes_collection:
-        return "Error: No se pudo conectar a la base de datos.", 500
-
-    # Busca todos los documentos, los ordena por fecha y los convierte a una lista
-    # La conversion es necesaria porque pymongo.cursor no se puede pasar directamente a la plantilla
+    
     incidentes = list(incidentes_collection.find().sort("fecha", -1))
     
+    # Renderiza la plantilla 'index.html' y le pasa la lista de incidentes
     return render_template('index.html', incidentes=incidentes)
 
-@app.route('/api/incidente', methods=['POST'])
-def registrar_incidente():
-    if not incidentes_collection:
-        return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
-        
-    data = request.json
-    texto = data.get('texto')
-    url = data.get('url')
-    categoria = data.get('categoria')
-    motivo = data.get('motivo')
-    usuario_id = data.get('usuario_id')
-    tipo_de_incidente = data.get('tipo_de_incidente')
-    
-    if not all([texto, url, categoria, motivo, usuario_id, tipo_de_incidente]):
-        return jsonify({"error": "Faltan datos en la solicitud"}), 400
-    
-    incidente_document = {
-        "texto": texto,
-        "url": url,
-        "categoria": categoria,
-        "motivo": motivo,
-        "usuario_id": usuario_id,
-        "tipo_de_incidente": tipo_de_incidente,
-        "fecha": datetime.now()
-    }
-    
-    # Inserta el documento en la colección de incidentes
-    result = incidentes_collection.insert_one(incidente_document)
-    
-    return jsonify({"success": True, "message": "Incidente registrado.", "id": str(result.inserted_id)}), 201
+# --- Rutas de la API (Base de Datos) ---
 
+@app.route('/api/incidente/<incidente_id>', methods=['GET'])
+def get_incidente(incidente_id):
+    #obtener el inicidente 
+    try:
+        # Convierte la cadena incidente_id a ObjectId para buscar en MongoDB
+        incidente = incidentes_collection.find_one({"_id": ObjectId(incidente_id)})
+        if incidente:
+            incidente['_id'] = str(incidente['_id']) # Convierte ObjectId a string para JSON
+            return jsonify({"success": True, "incidente": incidente}), 200
+        else:
+            return jsonify({"success": False, "message": "Incidente no encontrado."}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": f"ID de incidente inválido o error al buscar: {e}"}), 400
+
+
+# --- Ejecutar la Aplicación Flask ---
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
