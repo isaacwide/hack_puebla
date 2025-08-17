@@ -2,34 +2,40 @@
   "manifest_version": 3,
   "name": "Parental Control",
   "version": "1.0",
-  "description": "A Chrome extension for parental control.",
+  "description": "Una extensión de Chrome para control parental que bloquea contenido inapropiado y proporciona una experiencia de navegación segura para los menores.",
+  
+  
   "permissions": [
     "activeTab",
     "identity"
   ],
-  "oauth2": {
-    "client_id": "993464138153-0k24atog429p439hi24k79l4m37v5785.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/userinfo.email"
-    ]
-  },
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  
   "background": {
     "service_worker": "src/background.js"
   },
+  
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["src/content.js", "src/pageBlocker.js"]
     }
   ],
+  
   "action": {
+    
     "default_popup": "src/popup/popup.html",
+   
     "default_icon": {
       "16": "icon16.png",
       "48": "icon48.png",
       "128": "icon128.png"
     }
   },
+  
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

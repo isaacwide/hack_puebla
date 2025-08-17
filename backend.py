@@ -1,124 +1,140 @@
 import os
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime
-from pymongo import MongoClient
-from bson.objectid import ObjectId # Importa ObjectId para trabajar con los IDs de MongoDB
-import requests # Importa la librería requests para hacer llamadas HTTP a la API de Gemini
+import datetime
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from pymongo.mongo_client import MongoClient
+from bson.objectid import ObjectId
+from google.generativeai import GenerativeModel
 
-app = Flask(__name__)
+# --- 1. CONFIGURACIÓN INICIAL Y CARGA DE VARIABLES DE ENTORNO ---
+# Asegúrate de haber instalado las librerías necesarias:
+# pip install Flask flask-cors pymongo google-generativeai
 
+# Carga las variables de entorno. Es crucial no codificar las claves directamente.
+# El servidor debe tener estas variables configuradas antes de ejecutarse.
+# Ejemplo:
+# export MONGO_URI="mongodb+srv://..."
+# export GEMINI_API_KEY="AIzaSyB..."
 
-MONGO_URI = os.environ.get('mongodb+srv://isacaguilar222:1Y3nMiJUvATt7nIG@database.ezqrcly.mongodb.net/?retryWrites=true&w=majority&appName=dataBase')
+MONGO_URI = os.getenv("MONGO_URI")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Verifica si las variables se cargaron correctamente
 if not MONGO_URI:
-    print("ERROR: La variable de entorno MONGO_URI no está configurada.")
+    print("Error: La variable de entorno MONGO_URI no está configurada.")
+    exit()
+if not GEMINI_API_KEY:
+    print("Error: La variable de entorno GEMINI_API_KEY no está configurada.")
+    exit()
+
+# Inicialización de la aplicación Flask
+app = Flask(__name__)
+CORS(app)
+
+# --- 2. CONEXIÓN A LA BASE DE DATOS Y LA API DE GEMINI ---
+
 try:
     client = MongoClient(MONGO_URI)
-    db = client.get_database('main_dataBase') 
-    incidentes_collection = db.data 
-    print("Conexión a MongoDB Atlas establecida con éxito.")
-
+    # Conectándose a la base de datos principal
+    db = client.get_database("main_dataBase")
+    print("Conexión a MongoDB exitosa.")
 except Exception as e:
-    print(f"ERROR: No se pudo conectar a MongoDB Atlas: {e}")
-    exit("Fallo en la conexión a la base de datos. Saliendo.")
+    print(f"Error al conectar a MongoDB: {e}")
+    client = None
 
+try:
+    gemini_model = GenerativeModel("gemini-2.5-flash-preview-05-20")
+    print("Modelo de Gemini inicializado correctamente.")
+except Exception as e:
+    print(f"Error al inicializar el modelo de Gemini: {e}")
+    gemini_model = None
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
-if not GEMINI_API_KEY:
-    print("ERROR: La variable de entorno GEMINI_API_KEY no está configurada.")
+# --- 3. ENDPOINT DE LA API PARA EL ANÁLISIS DE URLS ---
 
-@app.route('/')
-def landing_page():
-    """Sirve la página de inicio."""
-    return render_template('landing_page.html')
-
-@app.route('/dashboard')
-def dashboard():
-    """Muestra la página del dashboard con los incidentes."""
-    incidentes = list(incidentes_collection.find().sort("fecha", -1))
-    return render_template('index.html', incidentes=incidentes)
-
-
-# --- NUEVA RUTA: Analizar URL con Gemini y Guardar en MongoDB ---
 @app.route('/api/analizar-url', methods=['POST'])
 def analizar_url():
     """
-    Recibe una URL, la analiza con la API de Gemini para detectar contenido peligroso
-    para menores, y guarda el resultado como un incidente en MongoDB.
+    Endpoint para analizar una URL y determinar si es segura.
+    La extensión de Chrome llama a este endpoint.
     """
-    data = request.get_json()
-    url = data.get('url')
+    if not request.json or 'url' not in request.json:
+        return jsonify({"error": "No se encontró 'url' en la solicitud."}), 400
 
-    if not url:
-        return jsonify({"error": "Falta la 'url' en la solicitud."}), 400
+    url_to_analyze = request.json['url']
+    print(f"Recibida solicitud para analizar URL: {url_to_analyze}")
 
-    prompt = f"Analiza la siguiente URL e indica si contiene contenido para adultos o inadecuado para menores. Proporciona una respuesta breve y clara: {url}. Responde con 'ADULTO', 'INFANTIL_INAPROPIADO', 'SEGURO' o 'DESCONOCIDO' seguido de una breve explicación."
-    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-    
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.2, # Un valor más bajo para respuestas más concisas y menos creativas
-            "maxOutputTokens": 100 # Limitar la longitud de la respuesta
-        }
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
+    if not gemini_model:
+        return jsonify({"error": "El modelo de Gemini no está disponible."}), 503
 
     try:
-        response = requests.post(gemini_url, json=payload, headers=headers)
-        response.raise_for_status() # Lanza un error para códigos de estado HTTP 4xx/5xx
+        prompt = (
+            "Analiza el contenido de esta URL: "
+            f"{url_to_analyze}. "
+            "Clasifica el contenido como 'URL Segura', 'Contenido Inapropiado para Menores' o "
+            "'Página para Adultos'. Proporciona una explicación breve y concisa del porqué, "
+            "incluyendo ejemplos si es posible."
+        )
+        response = gemini_model.generate_content(prompt)
+        gemini_text = response.candidates[0].content.parts[0].text
 
-        gemini_result = response.json()
+        incidente_type = gemini_text.split('\n')[0].strip()
+        valid_types = ['URL Segura', 'Contenido Inapropiado para Menores', 'Página para Adultos']
         
-        # Extrae el texto generado por Gemini
-        gemini_text = gemini_result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', 'Sin respuesta de Gemini.')
-        
-        # --- Determinar los campos del incidente basado en la respuesta de Gemini ---
-        tipo_de_incidente = "Desconocido"
-        categoria = "Análisis de Contenido"
-        motivo = "Análisis automatizado por IA"
-        usuario_id = "sistema_gemini_analisis"
-        texto_incidente = gemini_text # El texto de la respuesta de Gemini será el 'texto' del incidente
+        if incidente_type not in valid_types:
+            incidente_type = 'Análisis no categorizado'
 
-        # Lógica simple para clasificar basada en la respuesta de Gemini
-        if "ADULTO" in gemini_text.upper():
-            tipo_de_incidente = "Página para Adultos"
-            categoria = "Contenido Explícito"
-        elif "INFANTIL_INAPROPIADO" in gemini_text.upper():
-            tipo_de_incidente = "Contenido Inapropiado para Menores"
-            categoria = "Protección Infantil"
-        elif "SEGURO" in gemini_text.upper():
-            tipo_de_incidente = "URL Segura"
-            categoria = "Verificación de Seguridad"
-        
-        # Crea el documento incidente con los datos procesados
-        incidente_document = {
-            "url": url,
-            "tipo_de_incidente": tipo_de_incidente,
-            "texto": texto_incidente,
-            "categoria": categoria,
-            "motivo": motivo,
-            "usuario_id": usuario_id,
-            "fecha": datetime.now()
-        }
+        if client:
+            # Se genera un documento en el formato JSON especificado por el usuario
+            analysis_data = {
+                "url": url_to_analyze,
+                "tipo_de_incidente": incidente_type,
+                "texto": gemini_text,
+                "categoria": "Contenido No Deseado",
+                "motivo": "Clasificación de seguridad",
+                "usuario_id": "sistema_automatizado",
+                "fecha": datetime.datetime.now() # Se agrega la fecha para mantener un registro
+            }
+            # Se usa la colección correcta 'url_analysis' para evitar que se creen nuevas tablas
+            db.url_analysis.insert_one(analysis_data)
+            print("Datos de análisis guardados en MongoDB.")
 
-        # Inserta el documento en la colección de incidentes
-        insert_result = incidentes_collection.insert_one(incidente_document)
-        
         return jsonify({
-            "success": True,
-            "message": "URL analizada y incidente registrado con éxito.",
-            "gemini_response": gemini_text,
-            "incidente_id": str(insert_result.inserted_id)
-        }), 201
+            "url_analizada": url_to_analyze,
+            "tipo_de_incidente": incidente_type,
+            "gemini_response": gemini_text
+        })
 
-    except requests.exceptions.RequestException as e:
-        print(f"Error al llamar a la API de Gemini: {e}")
-        return jsonify({"success": False, "error": f"Error al analizar URL con Gemini: {e}"}), 500
     except Exception as e:
-        print(f"Error inesperado: {e}")
-        return jsonify({"success": False, "error": f"Error interno del servidor: {e}"}), 500
+        print(f"Error en el endpoint /api/analizar-url: {e}")
+        return jsonify({"error": "Ocurrió un error en el servidor."}), 500
+
+# --- 4. ENDPOINT PARA OBTENER EL HISTORIAL DE ANÁLISIS ---
+
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    """
+    Endpoint para obtener todo el historial de análisis de URLs.
+    No requiere parámetros.
+    """
+    if not client:
+        return jsonify({"error": "No hay conexión a la base de datos."}), 503
+
+    try:
+        # Busca todos los documentos en la colección 'url_analysis'
+        history = list(db.url_analysis.find({}).sort("fecha", -1))
+        
+        # Convierte el ObjectId a string para que se pueda serializar a JSON
+        for record in history:
+            record['_id'] = str(record['_id'])
+            
+        print(f"Se encontraron {len(history)} registros en el historial.")
+        return jsonify(history), 200
+
+    except Exception as e:
+        print(f"Error al obtener el historial: {e}")
+        return jsonify({"error": "Ocurrió un error en el servidor al obtener el historial."}), 500
+
+# --- 5. EJECUCIÓN DEL SERVIDOR ---
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

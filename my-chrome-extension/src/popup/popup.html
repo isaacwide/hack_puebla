@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Chrome Extension Popup</title>
+    <title>Analizador de URL</title>
+    <!-- Incluye Tailwind CSS para un estilo moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --background-color: #0d1117;
@@ -93,158 +95,42 @@
             box-shadow: none;
         }
 
-        /* Estilos generales de los elementos */
-        input {
-            width: 100px;
-            padding: 8px;
-            background-color: #0d1117;
-            border: 1px solid var(--accent-color);
-            border-radius: 4px;
-            text-align: center;
-            color: var(--text-color);
-            font-family: 'Consolas', monospace;
-        }
-        
-        input:focus {
-            outline: none;
-            box-shadow: 0 0 5px var(--accent-color);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 15px;
-            color: var(--secondary-text-color);
-            font-size: 0.9em;
-        }
-
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Estilos para modales */
-        .modal {
+        /* Estilos para el indicador de carga */
+        #loading-spinner {
             display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
+            border: 4px solid rgba(0, 255, 132, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent-color);
+            width: 40px;
+            height: 40px;
+            -webkit-animation: spin 1s linear infinite; /* Para Safari */
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
 
-        .modal-content {
-            background-color: var(--card-color);
-            padding: 25px;
-            border: 1px solid var(--accent-color);
-            border-radius: 12px;
-            width: 85%;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 0 0 15px var(--border-glow);
-        }
-        
-        /* Estilos para lista de categorías */
-        #categorias-list {
-            list-style: none;
-            text-align: left;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-        
-        #categorias-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #30363d;
-            font-size: 0.9em;
-        }
-        
-        #categorias-list li:last-child {
-            border-bottom: none;
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
         }
 
-        /* Estilos para mensajes de error/info */
-        #pin-error, #logout-pin-error {
-            color: #ff3b30;
-            font-size: 0.9em;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
-        
-        #google-user-info {
-            color: var(--accent-color);
-            font-weight: 500;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-
-    <div id="welcome-container" class="container" style="display:none;">
-        <h1>Bienvenido/a</h1>
-        <p>Esta extensión ayuda a proteger la actividad digital de menores. Antes de continuar, por favor acepta los términos y la <a href="https://github.com/isaacwide/hack_puebla/blob/main/my-chrome-extension/PRIVACY_POLICY.md" target="_blank">política de privacidad</a>.</p>
-        <button id="google-link-btn" class="button">Vincular cuenta de Google</button>
-        <div id="google-user-info" style="display:none; font-size:0.95em; margin-bottom:8px;"></div>
-        <div id="pin-setup" style="margin:16px 0; display:none;">
-            <label>Establece un PIN de 4 dígitos para proteger la configuración:<br>
-                <input type="password" id="pin-input" maxlength="4" pattern="\d{4}" autocomplete="new-password">
-            </label>
-            <div id="pin-error" style="color:#ff5252;display:none;font-size:0.9em;">El PIN debe ser de 4 dígitos numéricos.</div>
-            <button id="set-pin-btn" class="button">Guardar PIN</button>
+    <div class="container">
+        <h1>Análisis de Contenido</h1>
+        <div id="content-display" class="w-full text-center">
+            <p class="text-gray-400">Analizando el sitio actual...</p>
         </div>
-        <label style="display:block; margin: 16px 0;">
-            <input type="checkbox" id="accept-terms"> He leído y acepto los términos y la política de privacidad
-        </label>
-        <button id="accept-button" class="button" disabled>Aceptar y continuar</button>
-    </div>
 
-    <div id="popup-container" class="container" style="display:none;">
-        <h1>Panel de Control Parental</h1>
-        <p>Gestiona la protección y el bienestar digital de tu hijo.</p>
-        <button id="btn-categorias" class="button">Ver categorías filtradas</button>
-        <button id="btn-ayuda" class="button">¿Cómo te ayuda esta extensión?</button>
-        <button id="btn-logout" class="button">Cerrar sesión (requiere PIN)</button>
+        <!-- Indicador de carga -->
+        <div id="loading-spinner"></div>
+        
+        <button id="refresh-button" class="button">Volver a Analizar</button>
     </div>
-
-    <div id="logout-modal" class="modal">
-        <div class="modal-content">
-            <h3>Verificación de PIN</h3>
-            <p>Introduce el PIN de 4 dígitos para cerrar sesión:</p>
-            <input type="password" id="logout-pin-input" maxlength="4" pattern="\d{4}" autocomplete="off">
-            <div style="color:#ff5252;font-size:0.9em;display:none;" id="logout-pin-error">PIN incorrecto</div>
-            <button id="confirm-logout" class="button">Cerrar sesión</button>
-            <button id="cancel-logout" class="button" style="background:#888; border:none; margin-top: 8px;">Cancelar</button>
-        </div>
-    </div>
-    
-    <div id="categorias-modal" class="modal">
-        <div class="modal-content">
-            <h3>Categorías filtradas</h3>
-            <ul id="categorias-list" style="text-align:left; padding: 0;"></ul>
-            <button id="close-categorias" class="button">Cerrar</button>
-        </div>
-    </div>
-
-
-    <div id="ayuda-modal" class="modal">
-        <div class="modal-content">
-            <h3>¿Cómo te ayuda esta extensión?</h3>
-            <div id="ayuda-content" style="margin-bottom:18px;"></div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                <button id="ayuda-prev" class="button" style="width:48%;background:#222; color:var(--accent-color); border:1px solid var(--accent-color);">Anterior</button>
-                <button id="ayuda-next" class="button" style="width:48%;background:var(--accent-color); color:var(--background-color);">Siguiente</button>
-            </div>
-            <button id="close-ayuda" class="button">Cerrar</button>
-        </div>
-    </div>
-
     <script src="popup.js"></script>
 </body>
 </html>
