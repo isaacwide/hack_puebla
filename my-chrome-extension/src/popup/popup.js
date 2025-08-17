@@ -1,12 +1,12 @@
-// Espera a que el DOM esté completamente cargado
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- 1. Referencias a los elementos del DOM ---
+ 
     const contentDisplay = document.getElementById('content-display');
     const loadingSpinner = document.getElementById('loading-spinner');
     const refreshButton = document.getElementById('refresh-button');
-    const flaskServerUrl = 'http://127.0.0.1:5000/api/analizar-url'; // URL de tu servidor Flask
+    const flaskServerUrl = 'http://127.0.0.1:5000/api/analizar-url'; 
     
-    // Elementos de la nueva UI (bienvenida, PIN, menús, modales)
+   
     const welcomeContainer = document.getElementById('welcome-container');
     const popupContainer = document.getElementById('popup-container');
     const acceptTerms = document.getElementById('accept-terms');
@@ -34,10 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const confirmLogout = document.getElementById('confirm-logout');
     const cancelLogout = document.getElementById('cancel-logout');
 
-    // Estado de la vinculación de Google
+    
     let googleLinked = localStorage.getItem('googleLinked') === 'true';
 
-    // --- 2. Funciones de Utilidad y UI ---
     
     /**
      * Muestra un mensaje temporal en la interfaz
@@ -67,27 +66,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         messageContainer.style.display = 'block';
     };
 
-    /**
-     * Muestra el estado de carga en la interfaz
-     */
+    
     const showLoading = () => {
         if (contentDisplay) contentDisplay.innerHTML = `<p class="text-gray-400">Analizando el sitio actual...</p>`;
         if (loadingSpinner) loadingSpinner.style.display = 'block';
         if (refreshButton) refreshButton.disabled = true;
     };
 
-    /**
-     * Oculta el estado de carga
-     */
+   
     const hideLoading = () => {
         if (loadingSpinner) loadingSpinner.style.display = 'none';
         if (refreshButton) refreshButton.disabled = false;
     };
 
-    // --- CÓDIGO AGREGADO/MODIFICADO AQUÍ ---
+   
     /**
-     * Muestra el resultado del análisis en la interfaz, incluyendo los consejos.
-     * @param {object} result - El objeto de respuesta completo del backend.
+     
+     @param {object} result 
      */
     const displayResult = (result) => {
         let titleColor, bgColor;
@@ -95,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const geminiResponse = result.gemini_response;
         const consejos = result.consejos_seguridad;
         
-        // La lógica de color se mantiene basada en las categorías conocidas
+        
         switch (status) {
             case 'URL Segura':
                 titleColor = 'text-green-500';
@@ -114,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 bgColor = 'bg-gray-800/20';
         }
 
-        // Genera el HTML para los consejos de seguridad
         let consejosHtml = '';
         if (consejos && consejos.length > 0) {
             consejosHtml = `
@@ -135,8 +129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
     };
-    // --- FIN DEL CÓDIGO AGREGADO/MODIFICADO ---
-
+    
     /**
      * Llama al servidor Flask para analizar la URL
      * @param {string} url - La URL a analizar
@@ -157,9 +150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const data = await response.json();
-            // --- CÓDIGO MODIFICADO AQUÍ: Pasar el objeto de datos completo ---
+            
             displayResult(data);
-            // --- FIN DEL CÓDIGO MODIFICADO ---
+            
 
         } catch (error) {
             console.error('Error al analizar la URL:', error);
@@ -169,9 +162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    /**
-     * Obtiene la URL de la pestaña activa y la analiza
-     */
+   
     const getActiveTabAndAnalyze = () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             const activeTab = tabs[0];
@@ -184,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     /**
-     * Utilidad: hash SHA-256 con Web Crypto API
+     
      * @param {string} pin - El PIN a hashear.
      * @returns {Promise<string>} - El hash en formato hexadecimal.
      */
@@ -195,9 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // --- 3. Lógica de UI Principal (Bienvenida, PIN, Autenticación) ---
-
-    // Mostrar bienvenida o popup principal
+    
     if (!localStorage.getItem('termsAccepted')) {
         if (welcomeContainer) welcomeContainer.style.display = 'block';
         if (popupContainer) popupContainer.style.display = 'none';
@@ -206,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (popupContainer) popupContainer.style.display = 'block';
     }
 
-    // Mostrar campo de PIN si no existe
+    
     if (pinSetup && !localStorage.getItem('pinHash')) {
         pinSetup.style.display = 'block';
         if (setPinBtn) {
@@ -225,7 +214,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Vincular cuenta de Google
     if (googleLinkBtn) {
         googleLinkBtn.addEventListener('click', function() {
             if (!chrome.identity) {
@@ -258,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Habilitar botón de aceptar solo si términos y Google vinculados
+    
     const updateAcceptButton = () => {
         if (acceptButton && acceptTerms) {
             acceptButton.disabled = !(acceptTerms.checked && googleLinked);
@@ -276,7 +264,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Mostrar info de Google si ya está vinculada
+    
     if (googleLinked && localStorage.getItem('googleEmail')) {
         if (googleUserInfo) {
             googleUserInfo.style.display = 'block';
@@ -284,9 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // --- 4. Carga de Configuración y Lógica de Modales ---
-
-    // Simulación de carga de configuración desde el backend
+   
     async function cargarConfiguracionSimulada() {
         return new Promise(resolve => {
             setTimeout(() => {
@@ -304,7 +290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Menú principal: lógica de botones
+   
     if (btnCategorias && categoriasModal && categoriasList) {
         btnCategorias.addEventListener('click', async () => {
             const categorias = JSON.parse(localStorage.getItem('categoriasFiltradas'));
@@ -321,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (closeCategorias) closeCategorias.onclick = () => categoriasModal.style.display = 'none';
 
-    // --- Modal educativo interactivo para el menor ---
+   
     let ayudaIndex = 0;
     const ayudaTarjetas = [
         { html: `<div style="font-size:2em;">🔒</div><b>¡Tu seguridad es lo más importante!</b><br>Esta extensión bloquea sitios peligrosos y te avisa si detecta riesgos. ¡Así navegas más seguro!` },
@@ -404,20 +390,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
-    // --- 5. Inicialización de la Aplicación ---
-    
-    // Simular carga de configuración al iniciar
+   
     cargarConfiguracionSimulada().then(() => {
-        // La configuración se ha cargado, ahora podemos inicializar la UI
+        
         updateAcceptButton();
     });
 
-    // Llama a la función principal para analizar la URL si la UI ya está en el popup
+    
     if (localStorage.getItem('termsAccepted')) {
         getActiveTabAndAnalyze();
     }
 
-    // Añade el evento de clic al botón de re-analizar
     if (refreshButton) {
         refreshButton.addEventListener('click', getActiveTabAndAnalyze);
     }

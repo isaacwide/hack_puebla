@@ -9,32 +9,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /*
-         * Diseño ultra-futurista y neón avanzado:
-         * 1. El cuerpo es completamente transparente y sin padding.
-         * 2. Título con efecto de glitch y distorsión.
-         * 3. Contenedor principal con un marco de neón animado y un pulso intenso, ahora con un fondo semi-opaco.
-         * 4. Botones con un diseño más complejo, íconos y efectos de brillo.
-         * 5. Indicador de carga de doble anillo.
-         */
+        
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
         :root {
-            --background-color: #05080e; /* Manteniendo la variable pero no se usa */
-            --card-color-semi-opaque: rgba(14, 18, 24, 0.95); /* Fondo de la tarjeta semi-opaco */
+            --background-color: #05080e; 
+            --card-color-semi-opaque: rgba(14, 18, 24, 0.95); 
             --text-color: #ecf0f1;
-            --accent-color: #00ff84; /* Verde neón */
+            --accent-color: #00ff84; 
             --glow-color: rgba(0, 255, 132, 0.8);
             --secondary-text-color: #94a3b8;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: rgba(0,0,0,0); /* Fondo completamente transparente */
+            background-color: rgba(0,0,0,0); 
             color: var(--text-color);
             margin: 0;
-            padding: 0; /* Eliminado el padding del body */
+            padding: 0; 
             width: 350px;
             min-height: 200px;
             display: flex;
@@ -45,13 +38,13 @@
         }
         
         .container {
-            background-color: var(--card-color-semi-opaque); /* Usando el nuevo color semi-opaco */
-            backdrop-filter: blur(10px); /* Añadido un efecto de cristal esmerilado para un diseño más moderno */
+            background-color: var(--card-color-semi-opaque); 
+            backdrop-filter: blur(10px); 
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid #2d3748;
-            border-radius: 0; /* Esquinas totalmente cuadradas */
-            box-shadow: 0 0 40px var(--glow-color); /* Sombra más pronunciada */
-            padding: 30px; /* Padding movido al contenedor */
+            border-radius: 0; 
+            box-shadow: 0 0 40px var(--glow-color); 
+            padding: 30px; 
             width: 100%;
             max-width: 320px;
             text-align: center;
@@ -59,10 +52,10 @@
             position: relative;
             z-index: 2;
             animation: pulse-glow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-            overflow: hidden; /* Oculta el exceso del pseudo-elemento animado */
+            overflow: hidden; 
         }
         
-        /* Marco de neón animado */
+
         .container::before {
             content: '';
             position: absolute;
@@ -70,7 +63,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 0; /* Se ha actualizado el radio del borde para que coincida con el contenedor */
+            border-radius: 0; 
             background: linear-gradient(45deg, #00ff84, #00b362, #00ff84, #00b362);
             background-size: 400% 400%;
             opacity: 0.2;
@@ -99,8 +92,8 @@
         }
 
         .container:hover {
-            box-shadow: 0 0 60px var(--glow-color); /* Sombra más intensa al pasar el cursor */
-            /* Se ha eliminado la propiedad transform: translateY(-8px); */
+            box-shadow: 0 0 60px var(--glow-color); 
+           
             animation: none;
         }
 
@@ -125,9 +118,9 @@
         }
         
         #content-display {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)); /* Degradado sutil */
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)); 
             border: 1px solid rgba(0, 255, 132, 0.4);
-            border-radius: 0; /* Esquinas totalmente cuadradas */
+            border-radius: 0; 
             padding: 1rem;
             margin-bottom: 25px;
             font-family: 'Roboto Mono', monospace;

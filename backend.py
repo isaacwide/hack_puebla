@@ -8,27 +8,18 @@ from bson.objectid import ObjectId
 from google.generativeai import GenerativeModel
 import google.generativeai as genai
 
-# --- 1. CONFIGURACIÓN INICIAL Y CARGA DE VARIABLES DE ENTORNO ---
-# Asegúrate de haber instalado las librerías necesarias:
-# pip install Flask flask-cors pymongo google-generativeai
 
-# Carga las variables de entorno.
 MONGO_URI = os.getenv("MONGO_URI")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Verifica si las variables se cargaron correctamente
 if not MONGO_URI:
     print("Error: La variable de entorno MONGO_URI no está configurada.")
     exit()
 if not GEMINI_API_KEY:
     print("Error: La variable de entorno GEMINI_API_KEY no está configurada.")
     exit()
-
-# Inicialización de la aplicación Flask
 app = Flask(__name__)
 CORS(app)
-
-# --- 2. CONEXIÓN A LA BASE DE DATOS Y LA API DE GEMINI ---
 
 try:
     client = MongoClient(MONGO_URI)
@@ -39,15 +30,12 @@ except Exception as e:
     client = None
 
 try:
-    # Configura la API Key para el modelo de Gemini
     genai.configure(api_key=GEMINI_API_KEY)
     gemini_model = GenerativeModel("gemini-2.5-flash-preview-05-20")
     print("Modelo de Gemini inicializado correctamente.")
 except Exception as e:
     print(f"Error al inicializar el modelo de Gemini: {e}")
     gemini_model = None
-
-# --- 3. ENDPOINT EXISTENTE PARA EL ANÁLISIS DE URLS ---
 
 @app.route('/api/analizar-url', methods=['POST'])
 def analizar_url():
@@ -64,7 +52,6 @@ def analizar_url():
         return jsonify({"error": "El modelo de Gemini no está disponible."}), 503
 
     try:
-        # Prompt modificado para que el modelo devuelva el JSON directamente en el texto
         prompt = (
             f"Analiza el contenido de esta URL: {url_to_analyze}. "
             "Clasifica el contenido como 'URL Segura', 'Contenido Inapropiado para Menores' o "
@@ -75,16 +62,12 @@ def analizar_url():
             "'tipo_de_incidente', 'explicacion' y 'consejos_seguridad'. "
             "Asegúrate de que la respuesta sea un JSON válido y nada más."
         )
-        
-        # Eliminar generation_config ya que causa un error
         response = gemini_model.generate_content(
             contents=[{"parts": [{"text": prompt}]}]
         )
         
         gemini_json_str = response.candidates[0].content.parts[0].text
         print(f"Respuesta cruda de Gemini: {gemini_json_str}")
-
-        # Extraer el JSON del texto de la respuesta para evitar errores de parseo
         json_start = gemini_json_str.find('{')
         json_end = gemini_json_str.rfind('}')
         
@@ -121,8 +104,6 @@ def analizar_url():
         print(f"Error en el endpoint /api/analizar-url: {e}")
         return jsonify({"error": "Ocurrió un error en el servidor o el formato de respuesta del modelo no es válido."}), 500
 
-# --- 4. NUEVO ENDPOINT PARA ANÁLISIS DE TEXTO EN TIEMPO REAL ---
-
 @app.route('/api/analizar-texto', methods=['POST'])
 def analizar_texto():
     """
@@ -139,7 +120,6 @@ def analizar_texto():
         return jsonify({"error": "El modelo de Gemini no está disponible."}), 503
 
     try:
-        # Prompt modificado para que el modelo devuelva el JSON directamente en el texto
         prompt = (
             "Analiza el siguiente texto de una conversación: "
             f"'{text_to_analyze}'. "
@@ -152,16 +132,12 @@ def analizar_texto():
             "Cada consejo debe tener un 'titulo' y una 'descripcion'. "
             "Asegúrate de que la respuesta sea un JSON válido y nada más."
         )
-
-        # Eliminar generation_config ya que causa un error
         response = gemini_model.generate_content(
             contents=[{"parts": [{"text": prompt}]}]
         )
         
         gemini_json_str = response.candidates[0].content.parts[0].text
         print(f"Respuesta cruda de Gemini: {gemini_json_str}")
-
-        # Extraer el JSON del texto de la respuesta para evitar errores de parseo
         json_start = gemini_json_str.find('{')
         json_end = gemini_json_str.rfind('}')
         
@@ -170,8 +146,6 @@ def analizar_texto():
 
         clean_json_str = gemini_json_str[json_start : json_end + 1]
         result = json.loads(clean_json_str)
-
-        # Se guarda el registro del análisis de texto en la base de datos
         if client:
             analysis_data = {
                 "texto_analizado": text_to_analyze,
@@ -188,8 +162,6 @@ def analizar_texto():
         print(f"Error en el endpoint /api/analizar-texto: {e}")
         return jsonify({"error": "Ocurrió un error en el servidor o el formato de respuesta del modelo no es válido."}), 500
 
-# --- 5. ENDPOINT EXISTENTE PARA OBTENER EL HISTORIAL DE ANÁLISIS ---
-
 @app.route('/api/history', methods=['GET'])
 def get_history():
     """
@@ -199,11 +171,8 @@ def get_history():
         return jsonify({"error": "No hay conexión a la base de datos."}), 503
 
     try:
-        # Busca todos los documentos en la colección 'url_analysis' y 'text_analysis'
         url_history = list(db.url_analysis.find({}).sort("fecha", -1))
         text_history = list(db.text_analysis.find({}).sort("fecha", -1))
-        
-        # Convierte el ObjectId a string
         for record in url_history:
             record['_id'] = str(record['_id'])
         for record in text_history:
@@ -220,8 +189,6 @@ def get_history():
     except Exception as e:
         print(f"Error al obtener el historial: {e}")
         return jsonify({"error": "Ocurrió un error en el servidor al obtener el historial."}), 500
-
-# --- 6. EJECUCIÓN DEL SERVIDOR ---
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
