@@ -12,18 +12,50 @@
         <p>Esta extensión ayuda a proteger la actividad digital de menores. Antes de continuar, por favor acepta los términos y la <a href="https://github.com/isaacwide/hack_puebla/blob/main/my-chrome-extension/PRIVACY_POLICY.md" target="_blank">política de privacidad</a>.</p>
         <button id="google-link-btn" style="margin: 12px 0;">Vincular cuenta de Google</button>
         <div id="google-user-info" style="display:none; font-size:0.95em; margin-bottom:8px;"></div>
+        <div id="pin-setup" style="margin:16px 0; display:none;">
+            <label>Establece un PIN de 4 dígitos para proteger la configuración:<br>
+                <input type="password" id="pin-input" maxlength="4" style="width:80px;" pattern="\d{4}" autocomplete="new-password">
+            </label>
+            <div id="pin-error" style="color:red;display:none;font-size:0.9em;">El PIN debe ser de 4 dígitos numéricos.</div>
+            <button id="set-pin-btn" style="margin-top:8px;">Guardar PIN</button>
+        </div>
         <label style="display:block; margin: 16px 0;">
             <input type="checkbox" id="accept-terms"> He leído y acepto los términos y la política de privacidad
         </label>
         <button id="accept-button" disabled>Aceptar y continuar</button>
     </div>
     <div id="popup-container" style="display:none;">
-        <h1>Welcome to My Chrome Extension</h1>
-        <p>This is a simple popup for the extension.</p>
+        <h1>Panel de Control Parental</h1>
         <div id="privacy-notice" style="font-size:0.9em; color:#666; margin:16px 0 8px 0;">
             <strong>Transparencia:</strong> Esta extensión analiza las URLs visitadas usando Google Gemini para proteger a menores. No recolecta información personal ni comparte datos con otros terceros. <a href="https://github.com/isaacwide/hack_puebla/blob/main/my-chrome-extension/PRIVACY_POLICY.md" target="_blank" style="color:#4f46e5; text-decoration:underline;">Política de privacidad</a>.
         </div>
-        <button id="action-button">Click Me!</button>
+        <button id="btn-categorias" style="width:100%;margin:8px 0;">Ver categorías filtradas</button>
+        <button id="btn-ayuda" style="width:100%;margin:8px 0;">¿Cómo te ayuda esta extensión?</button>
+        <button id="btn-logout" style="width:100%;margin:8px 0;">Cerrar sesión (requiere PIN)</button>
+        <div id="logout-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
+                <h3>Verificación de PIN</h3>
+                <p>Introduce el PIN de 4 dígitos para cerrar sesión:</p>
+                <input type="password" id="logout-pin-input" maxlength="4" style="width:80px;" pattern="\d{4}" autocomplete="off">
+                <div style="color:red;font-size:0.9em;display:none;" id="logout-pin-error">PIN incorrecto</div>
+                <button id="confirm-logout">Cerrar sesión</button>
+                <button id="cancel-logout" style="margin-left:8px;">Cancelar</button>
+            </div>
+        </div>
+        <div id="categorias-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
+                <h3>Categorías filtradas</h3>
+                <ul id="categorias-list" style="text-align:left;"></ul>
+                <button id="close-categorias">Cerrar</button>
+            </div>
+        </div>
+        <div id="ayuda-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10;align-items:center;justify-content:center;">
+            <div style="background:#fff;padding:24px 16px;border-radius:10px;max-width:320px;margin:auto;text-align:center;">
+                <h3>¿Cómo te ayuda esta extensión?</h3>
+                <p>Esta extensión protege tu navegación bloqueando sitios peligrosos, mostrando alertas y permitiendo que tus padres configuren filtros para tu seguridad digital.</p>
+                <button id="close-ayuda">Cerrar</button>
+            </div>
+        </div>
     </div>
     <script src="popup.js"></script>
 </body>
