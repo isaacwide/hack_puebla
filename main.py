@@ -1,32 +1,21 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 from datetime import datetime
+from pymongo import MongoClient
 import os
 
 app = Flask(__name__)
-DATABASE = os.path.join(os.getcwd(), 'incidentes.db')
+MONGO_URI = os.environ.get('MONGO_URI')
 
-def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
+if not MONGO_URI:
+    print("error: MONGO_URI environment variable not set.")
 
-def create_table():
-    conn = get_db_connection()
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS incidentes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            texto TEXT NOT NULL,
-            url TEXT NOT NULL,
-            categoria TEXT NOT NULL,
-            motivo TEXT NOT NULL,
-            fecha TIMESTAMP NOT NULL
-        );
-    ''')
-    conn.commit()
-    conn.close()
 
-create_table()
+try:
+    client = MongoClient(MONGO_URI)
+  
+except Exception as e:
+    print(f"error: Could not connect to MongoDB. {e}")
 
 # --- NUEVA RUTA para la página de inicio ---
 @app.route('/')
